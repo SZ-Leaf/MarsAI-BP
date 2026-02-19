@@ -1,7 +1,13 @@
 import { Router } from "express";
+import { juryList, findJuryById } from "../../controllers/jury/jury.controller.js";
 
-router.get("/jury");
-router.get("/jury/:id");
-router.post("/jury");
-router.put("/jury/:id");
-router.delete("/jury/:id");
+
+const router = Router();
+
+router.get("/", juryList);
+router.get("/:id", findJuryById );
+// router.post("/");
+// router.put("/:id");
+// router.delete("/:id");
+
+export default router;
