@@ -8,7 +8,7 @@ export const juryList = async(req, res) => {
       return sendError(res, 404, "La liste des membres du jury est vide", "The jury list is empty", null);
     }
         
-        return sendSuccess(res, 200, "Liste des membres du jury récupérée avec succès","List of jury members retrieved with succes",jurys)
+        return sendSuccess(res, 200, "Liste des membres du jury récupérée avec succès","List of jury members retrieved with success",jurys)
     } catch (error) {
         console.error("Erreur juryList:", error);
         return sendError(res, 500, "Impossible de récupérer la liste du jury", null );
@@ -27,9 +27,26 @@ export const findJuryById = async (req,res) => {
             return sendError(res, 404, "Membre du jury introuvable", "Jury member not found", null);
         }
 
-        return sendSuccess(res, 200, `Membre du jury numéro ${id} récupéré avec succés`, `Jury member number ${id} succesfully`, jury )
+        return sendSuccess(res, 200, `Membre du jury numéro ${id} récupéré avec succés`, `Jury member number ${id} successfully retrieved`, jury )
     } catch (error) {
         console.error("Erreur findByJuryId:", error);
         return sendError(res, 500, "Impossible de récupérer ce membre du jury","Unable to retrieve this member of jury", null);
+    }
+}
+export const createNewJuryMember =  async (req, res) => {
+    try {
+        
+        const { firstname, lastname, job} = req.body
+
+         const cover = req.file ? `/uploads/jury/tmp/${req.file.filename}` : null;
+
+        const id = await juryModel.createJuryMember({cover, firstname, lastname, job});
+
+        return sendSuccess(res, 201, "Nouveau membre du jury crée avec succés", "New jury member created successfully !",{id})
+        
+    } catch (error) {
+
+        return sendError(res, 500, "Impossible de créer un nouveau membre du jury", "Impossible to create a new jury member", null);
+        
     }
 }
