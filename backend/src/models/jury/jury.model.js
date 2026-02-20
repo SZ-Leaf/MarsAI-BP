@@ -22,9 +22,10 @@ const createJuryMember = async({cover, firstname, lastname, job}) => {
 };
 
 const deleteJuryMember = async(id) => {
-    await db.pool.execute(
+    const [result] = await db.pool.execute(
         "DELETE FROM jury WHERE id=? ", [id]
     );
+    return result.affectedRows;
 };
 
 export default {getAllJuryMembers, getJuryMemberById, createJuryMember, deleteJuryMember};

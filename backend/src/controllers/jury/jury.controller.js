@@ -1,5 +1,7 @@
 import { sendSuccess, sendError } from "../../helpers/response.helper.js";
-import juryModel from "../../models/jury/jury.model.js"
+import juryModel from "../../models/jury/jury.model.js";
+import fs from "fs";
+import path from "path";
 
 export const juryList = async(req, res) => {
     try {
@@ -38,7 +40,7 @@ export const createNewJuryMember =  async (req, res) => {
         
         const { firstname, lastname, job} = req.body
 
-         const cover = req.file ? `/uploads/jury/tmp/${req.file.filename}` : null;
+        const cover = req.file ? `/uploads/jury/tmp/${req.file.filename}` : null;
 
         const id = await juryModel.createJuryMember({cover, firstname, lastname, job});
 
@@ -48,5 +50,37 @@ export const createNewJuryMember =  async (req, res) => {
 
         return sendError(res, 500, "Impossible de créer un nouveau membre du jury", "Impossible to create a new jury member", null);
         
+    }
+}
+export const deleteMemberById = async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+
+        if (!Number.isInteger(id) || id <= 0) {
+            return sendError(res, 400, "Id invalide", "Invalid id", null);
+        }
+
+        const jury = await juryModel.getJuryMemberById(id);
+
+        if (!jury) {
+            return sendError(res, 404, "Membre du jury introuvable", "Jury member not found", null);
+        }
+
+        await juryModel.deleteJuryMember(id);
+
+        if (jury.cover) {
+            const absPath = path.join(process.cwd(), jury.cover);
+            fs.unlink(absPath, (err) => {
+                if (err && err.code !== "ENOENT") {
+                console.error("Erreur suppression cover:", err);
+                }
+            });
+        }
+
+        return sendSuccess(res, 200, "Suppression du membre du jury effectuée", "Jury member deleted successfully",null);
+
+    } catch (error) {
+        console.error(error);
+        return sendError(res, 500, "Impossible de supprimer ce membre du jury", "Impossible to delete this jury member",null)
     }
 }
