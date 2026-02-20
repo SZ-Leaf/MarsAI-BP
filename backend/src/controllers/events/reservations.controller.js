@@ -3,11 +3,22 @@ import { getEventById } from "../../models/events/events.model.js";
 import { sendError, sendSuccess } from '../../helpers/response.helper.js';
 import { generateReservationConfirmToken, verifyReservationConfirmToken } from '../../services/mailer/mailer.tokens.js';
 import { sendReservationConfirmation } from "../../services/mailer/mailer.mail.js";
+import { reservationSchema } from "../../utils/schemas/reservation.schemas.js";
 
 export const createReservationController = async (req, res) => {
+  let validatedData;
   try {
-    const { first_name, last_name, email } = req.body;
+    validatedData = reservationSchema.parse({
+      first_name: req.body.first_name,
+      last_name: req.body.last_name,
+      email: req.body.email,
+      event_id: req.params.id ? Number(req.params.id) : undefined
+    });
+  } catch (err) {
+    return sendError(res, 422, 'Données invalides', 'Invalid data', err.message);
+  }
 
+  try {
     const eventId = Number(req.params.id);
     if (!Number.isInteger(eventId) || eventId <= 0) {
       return sendError(res, 400, 'ID invalide', 'Invalid ID', null);
@@ -19,15 +30,13 @@ export const createReservationController = async (req, res) => {
     }
 
     const reservationId = await createReservation({
-      first_name,
-      last_name,
-      email,
+      ...validatedData,
       event_id: eventId
     });
 
-    const token = generateReservationConfirmToken(reservationId, email);
+    const token = generateReservationConfirmToken(reservationId, validatedData.email);
 
-    await sendReservationConfirmation(email, token, reservationId);
+    await sendReservationConfirmation(validatedData.email, token, reservationId);
 
     return sendSuccess(
       res,
@@ -59,8 +68,6 @@ export const createReservationController = async (req, res) => {
       );
     }
 
-
-
     return sendError(
       res,
       500,
@@ -80,8 +87,6 @@ export const reservationConfirmation = async (req, res) => {
     }
 
     const decoded = verifyReservationConfirmToken(token);
-
-
 
     const { reservationId } = decoded;
 
