@@ -21,6 +21,13 @@ const createJuryMember = async({cover, firstname, lastname, job}) => {
     return result.insertId;
 };
 
+const updateJuryMember = async(id,{cover, firstname, lastname, job}) => {
+    const [result] = await db.pool.execute(
+        "UPDATE jury SET cover = ?, firstname = ?, lastname = ?, job = ? WHERE id = ?", [cover, firstname, lastname, job, id]
+    );
+    return result.affectedRows;
+}
+
 const deleteJuryMember = async(id) => {
     const [result] = await db.pool.execute(
         "DELETE FROM jury WHERE id=? ", [id]
@@ -28,4 +35,4 @@ const deleteJuryMember = async(id) => {
     return result.affectedRows;
 };
 
-export default {getAllJuryMembers, getJuryMemberById, createJuryMember, deleteJuryMember};
+export default {getAllJuryMembers, getJuryMemberById, createJuryMember, updateJuryMember, deleteJuryMember};

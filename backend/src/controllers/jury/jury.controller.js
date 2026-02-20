@@ -52,6 +52,42 @@ export const createNewJuryMember =  async (req, res) => {
         
     }
 }
+export const updateMemberById = async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+
+        if (!Number.isInteger(id) || id <= 0) {
+            return sendError(res, 400, "Id invalide", "Invalid id", null);
+        }
+
+        const jury = await juryModel.getJuryMemberById(id);
+        if (!jury) {
+            return sendError(res, 404, "Membre du jury introuvable", "Jury member not found", null);
+        }
+
+        const { firstname, lastname, job} = req.body
+
+        const file = req.file ?? req.files?.cover?.[0];
+        const newCover = file ? `uploads/jury/tmp/${file.filename}` : jury.cover;
+
+        await juryModel.updateJuryMember(id, {cover: newCover, firstname, lastname, job});
+        //si la cover est remplacée, on supprime l'ancienne du stockage et db
+        if (file && jury.cover && jury.cover !== newCover) {
+            const absPath = path.join(process.cwd(), jury.cover);
+            fs.unlink(absPath, (err) => {
+                if (err && err.code !== "ENOENT") {
+                console.error("Erreur suppression ancienne cover:", err);
+                }
+            });
+        }
+        const updatedMember = await juryModel.getJuryMemberById(id);
+        
+        return sendSuccess(res, 200, "Informations mises à jour", "Informations updated", updatedMember);
+    } catch (error) {
+        console.error(error);
+        return sendError(res, 500, "Impossible de mettre à jour les informations", "Unable to update informations", null)
+    }
+}
 export const deleteMemberById = async (req, res) => {
     try {
         const id = Number(req.params.id);
@@ -67,7 +103,7 @@ export const deleteMemberById = async (req, res) => {
         }
 
         await juryModel.deleteJuryMember(id);
-
+        //suppression de la cover associée à un membre du jury
         if (jury.cover) {
             const absPath = path.join(process.cwd(), jury.cover);
             fs.unlink(absPath, (err) => {
