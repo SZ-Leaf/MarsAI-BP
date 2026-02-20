@@ -1,17 +1,31 @@
-import { getVideoDurationInSeconds } from 'get-video-duration';
 import path from 'path';
 import fs from 'fs/promises';
 import { fileURLToPath } from 'url';
-import { createSubmission, updateFilePaths, getSubmissions, getSubmissionById } from '../../models/submissions/submissions.model.js';
+import { getVideoDurationInSeconds } from 'get-video-duration';
+
+// Models & Helpers
+import {
+  createSubmission,
+  updateFilePaths,
+  getSubmissions,
+  getSubmissionById,
+  updateYoutubeLinkInDatabase
+} from '../../models/submissions/submissions.model.js';
 import collaboratorModel from '../../models/submissions/collaborators.model.js';
 import galleryModel from '../../models/submissions/gallery.model.js';
 import socialModel from '../../models/socials/socials.model.js';
 import submissions_tagsModel from '../../models/tags/submissions_tags.model.js';
+// Import du modèle pour les tags YouTube
+import { getTagsBySubmissionId } from '../../models/tags/submissions_tags_youtube.model.js';
+
 import { sendError, sendSuccess } from '../../helpers/response.helper.js';
 import { submissionSchema } from '../../utils/schemas/submission.schemas.js';
 import { verifyRecaptcha } from '../../utils/recaptcha.js';
 import { sendSubmissionConfirmation } from '../../services/mailer/mailer.mail.js';
 import db from '../../config/db_pool.js';
+
+// Services YouTube
+import { uploadVideo, uploadThumbnail, uploadOrUpdateCaptions } from '../../services/youtube.services.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -218,7 +232,7 @@ export const submitController = async (req, res) => {
 
     await submissions_tagsModel.addTagsToSubmission(connection, submissionId, validatedData.tagIds);
 
-    // 
+    //
     // create final folders directories for video, cover, subtitles and gallery
     //
 
@@ -322,6 +336,41 @@ export const submitController = async (req, res) => {
     await connection.commit();
     transactionStarted = false;
 
+    //
+    // upload to YouTube (after DB commit)
+    //
+
+    let youtubeUrl = null;
+    try {
+      const tagsData = await getTagsBySubmissionId(submissionId);
+      const ytTags = tagsData.map(tag => tag.title);
+
+      const ytResponse = await uploadVideo({
+        title: validatedData.english_title || validatedData.french_title,
+        description: validatedData.english_description || validatedData.french_description,
+        tags: ytTags,
+        filePath: finalVideoPath
+      });
+
+      const youtubeId = ytResponse.id;
+
+      if (youtubeId) {
+        // thumbnail
+        await uploadThumbnail({ videoId: youtubeId, thumbnailPath: finalCoverPath });
+
+        // subtitles
+        if (finalSubtitlesPath) {
+          await uploadOrUpdateCaptions({ videoId: youtubeId, srtPath: finalSubtitlesPath });
+        }
+
+        // MISE À JOUR DU LIEN YOUTUBE DANS LA BDD
+        youtubeUrl = `https://www.youtube.com/watch?v=${youtubeId}`;
+        await updateYoutubeLinkInDatabase(youtubeUrl, submissionId);
+      }
+    } catch (ytError) {
+      console.warn('YouTube upload failed, but local submission is saved:', ytError.message);
+    }
+
     // Envoi d'un email de confirmation au créateur (ne pas bloquer la réponse en cas d'échec)
     try {
       await sendSubmissionConfirmation(
@@ -335,6 +384,7 @@ export const submitController = async (req, res) => {
 
     return sendSuccess(res, 201, 'Soumission créée avec succès', 'Submission created successfully', {
       submission_id: submissionId,
+      youtube_url: youtubeUrl,
       duration_seconds: durationSeconds
     });
 
@@ -391,10 +441,10 @@ export const getSubmissionsController = async (req, res) => {
     const parsedOffset = parseInt(offset);
 
     const safeSort = sortBy?.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
-    const safeRated = rated 
-      ? (rated.toLowerCase() === 'rated' ? 'rated' : 'unrated') 
+    const safeRated = rated
+      ? (rated.toLowerCase() === 'rated' ? 'rated' : 'unrated')
       : null;
-    
+
     const filters = {
       type: type || null,
       limit: Number.isNaN(parsedLimit) ? 15 : parsedLimit,
@@ -408,7 +458,7 @@ export const getSubmissionsController = async (req, res) => {
     return sendSuccess(res, 200,
       'Soumissions récupérées avec succès',
       'Submissions retrieved successfully',
-      { 
+      {
         count: total,
         limit: filters.limit,
         offset: filters.offset,
