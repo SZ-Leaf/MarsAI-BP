@@ -15,6 +15,7 @@ const Dashboard = () => {
     films: VideoGallery,
     events: AdminEvents,
     newsletter: AdminNewsletter,
+    invitations: Invitations,
     config: () => (
       <div className="flex flex-col items-center justify-center h-[60vh]">
         <h1 className="section-title">Configuration</h1>

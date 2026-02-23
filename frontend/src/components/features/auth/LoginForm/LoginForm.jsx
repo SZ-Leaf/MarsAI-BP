@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { loginService } from "../../../../services/auth.service";
 import { useLanguage } from "../../../../context/LanguageContext";
 import { responseHelper } from "../../../../helpers/responseHelper";
 import { useAlertHelper } from "../../../../helpers/alertHelper";

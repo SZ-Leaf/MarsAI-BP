@@ -115,6 +115,25 @@ const inviteUser = async (email, role_id) => {
    }
 };
 
+const getPendingInvites = async (maxRoleId) => {
+   try {
+      const [rows] = await db.pool.execute(
+         "SELECT * FROM invites WHERE registered IS NULL AND role_id <= ? ORDER BY created_at DESC",
+         [maxRoleId]
+      );
+      return rows;
+   } catch (error) {
+      console.error("Error getting pending invites:", error);
+      throw error;
+   }
+};
+
+const getInviteById = async (id) => {
+   const [rows] = await db.pool.execute("SELECT * FROM invites WHERE id = ?", [id]);
+   return rows[0] || null;
+};
+
+
 const registerUser = async (token, user) => {
    let connection;
 
@@ -298,16 +317,15 @@ const changeUserRole = async (id, role_id) => {
    }
 };
 
-const deleteInvite = async (email) => {
+const deleteInvitation = async (id) => {
    let connection;
    try {
       connection = await db.pool.getConnection();
       await connection.beginTransaction();
 
-      // Use FOR UPDATE to lock the row and prevent race conditions
       const [rows] = await connection.execute(
-         "SELECT * FROM invites WHERE email = ? AND registered IS NULL FOR UPDATE",
-         [email]
+         "SELECT * FROM invites WHERE id = ? AND registered IS NULL FOR UPDATE",
+         [id]
       );
 
       if (rows.length === 0) {
@@ -315,10 +333,9 @@ const deleteInvite = async (email) => {
          throw new Error("Invite not found");
       }
 
-      // Include registered IS NULL in DELETE for extra safety
       const [result] = await connection.execute(
-         "DELETE FROM invites WHERE email = ? AND registered IS NULL",
-         [email]
+         "DELETE FROM invites WHERE id = ? AND registered IS NULL",
+         [id]
       );
 
       if (result.affectedRows === 0) {
@@ -327,7 +344,7 @@ const deleteInvite = async (email) => {
       }
 
       await connection.commit();
-      return { success: true, email: email };
+      return result;
    } catch (error) {
       if (connection) await connection.rollback();
       console.error("Error deleting invite:", error);
@@ -347,4 +364,4 @@ const getWaitingInvites = async () => {
    }
 };
 
-export { getUsers, getUserById, inviteUser, registerUser, deleteUser, getUserCredentials, loginUser, updateUser, updateUserPassword, changeUserRole, resetUserPassword, deleteInvite, getWaitingInvites };
+export { getUsers, getUserById, inviteUser, registerUser, deleteUser, getUserCredentials, loginUser, updateUser, updateUserPassword, changeUserRole, resetUserPassword, getWaitingInvites, getPendingInvites, getInviteById, deleteInvitation };

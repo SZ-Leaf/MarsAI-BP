@@ -37,6 +37,7 @@ const Submissions = ({ onDetailToggle }) => {
    });
 
    const [total, setTotal] = useState(0);
+   const [unfilteredTotal, setUnfilteredTotal] = useState(null);
 
    const getSubmissions = async () => {
       setLoading(true);
@@ -52,6 +53,9 @@ const Submissions = ({ onDetailToggle }) => {
          });
          setSubmissionsList(response.data.submissions);
          setTotal(response.data.count);
+         if (unfilteredTotal === null && !typeFilter && !ratedFilter && !playlistFilter) {
+            setUnfilteredTotal(response.data.count);
+         }
       } catch (error) {
          alertHelper.showMessage(getMessageFromResponse(error));
       } finally {
@@ -103,6 +107,7 @@ const Submissions = ({ onDetailToggle }) => {
                   onNext={() => setActiveIndex((i) => i + 1)}
                   hasPrev={activeIndex > 0}
                   hasNext={activeIndex < submissionsList.length - 1}
+                  onMemoUpdate={getSubmissions}
                />
             ) : (
                <motion.div
@@ -140,8 +145,8 @@ const Submissions = ({ onDetailToggle }) => {
                            <PlaylistCard
                               key={p.key}
                               playlist={p}
-                              loading={p.key === "all" ? loading : playlistLoading}
-                              count={p.key === "all" ? total : (counts?.[p.key] ?? 0)}
+                              loading={p.key === "all" ? (unfilteredTotal === null) : playlistLoading}
+                              count={p.key === "all" ? (unfilteredTotal ?? 0) : (counts?.[p.key] ?? 0)}
                               isActive={playlistFilter === p.key}
                               onClick={() => {
                                  setPlaylistFilter((prev) => prev === p.key ? null : p.key);

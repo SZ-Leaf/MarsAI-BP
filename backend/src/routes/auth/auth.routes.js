@@ -10,13 +10,19 @@ import { inviteUserController,
    resetPasswordController,
    getAllUsersController, changeUserRoleController,
    logoutUserController,
-   getCurrentUserController
+   getCurrentUserController,
+   getPendingInvitesController,
+   deleteInvitationController
 } from '../../controllers/auth/user.controller.js';
 
 const authRoutes = Router();
 
 // invite route
 authRoutes.post('/invite', authenticate, requireRole([2, 3]), inviteUserController);
+
+authRoutes.get('/pending-invites', authenticate, requireRole([2, 3]), getPendingInvitesController);
+
+authRoutes.delete('/pending-invites/:id', authenticate, requireRole([2, 3]), deleteInvitationController);
 
 // register route
 authRoutes.post('/register', registerUserController);

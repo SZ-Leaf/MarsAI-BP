@@ -2,10 +2,10 @@ import { apiCall } from '../utils/api';
 import { I18nError } from './error.service';
 
 export const getCurrentUserService = async () => {
-   const res = apiCall('/api/auth/me', {
+   const res = await apiCall('/api/auth/me', {
     method: 'GET'
    });
-   return res.data?.user ?? res.date ?? res;
+   return res.data?.user ?? res.data ?? res;
 };
 
 export const loginService = async (email, password) => {

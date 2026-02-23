@@ -9,6 +9,7 @@ const SideBar = ({ activeView, onViewChange }) => {
   const { language } = useLanguage();
   const { user } = useAuth();
   const items = navItems();
+  console.log('user', user);
   return (
     <aside className="sidebar">
       {/* User Profile */}
