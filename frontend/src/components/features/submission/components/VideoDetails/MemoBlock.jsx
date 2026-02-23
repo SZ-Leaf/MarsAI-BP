@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useLanguage } from '../../../context/LanguageContext';
+import { useLanguage } from '../../../../../context/LanguageContext';
 import { Star, MessageSquare, Pencil, Trash2, Loader2, Heart, Clock, Flag } from 'lucide-react';
-import { saveMemo, deleteMemo } from '../../../services/memo.service';
+import { saveMemo, deleteMemo } from '../../../../../services/memo.service';
 
 const PLAYLIST_OPTIONS = [
    {

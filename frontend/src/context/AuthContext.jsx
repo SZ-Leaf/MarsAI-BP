@@ -26,7 +26,7 @@ export const AuthProvider = ({children}) => {
       const fetchCurrentUser = async () => {
          try {
             const response = await getCurrentUserService();
-            setUser(response.data?.user);
+            setUser(response);
             setError(null);
          } catch (error) {
             if (error?.status === 401) {

@@ -10,7 +10,7 @@ import {
    User, Mail, Phone, MapPin, Globe,
    Film, Clock, Calendar, Clapperboard, Cpu, Captions, Link, Sparkles
 } from "lucide-react";
-import MemoBlock from "./uploads/MemoBlock";
+import MemoBlock from "./MemoBlock";
 
 const VideoDetails = ({ video, onClose, onNext, onPrev, hasNext, hasPrev, onMemoUpdate }) => {
    const { language } = useLanguage();

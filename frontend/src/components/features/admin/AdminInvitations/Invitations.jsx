@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { useAuth } from '../../hooks/useAuth';
-import { useLanguage } from '../../context/LanguageContext';
+import { useAuth } from '../../../../hooks/useAuth';
+import { useLanguage } from '../../../../context/LanguageContext';
 import { Loader2, Info, Trash2, Loader, Plus, Send, ChevronUp, Mail, ArrowUp, ArrowDown, Search } from 'lucide-react';
-import { getPendingInvitations, cancelInvitation, inviteUser } from '../../services/invitation.service';
+import { getPendingInvitations, cancelInvitation, inviteUser } from '../../../../services/invitation.service';
 
 const ROLE_LABELS = {
    1: { fr: 'Utilisateur', en: 'User' },
@@ -26,7 +26,7 @@ const Invitations = () => {
    const [inviteSuccess, setInviteSuccess] = useState(null);
    const formRef = useRef(null);
 
-   const myRoleId = user?.data?.role_id;
+   const myRoleId = user?.role_id;
    const isSuperAdmin = myRoleId === 3;
 
    const [searchQuery, setSearchQuery] = useState('');
@@ -69,6 +69,8 @@ const Invitations = () => {
       try {
          const response = await getPendingInvitations();
          setInvitations(response.data || []);
+         console.log('response', response.data);
+         console.log('logged user', user);
       } catch (err) {
          setError(err);
       } finally {
