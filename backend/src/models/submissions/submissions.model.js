@@ -9,11 +9,12 @@ export const createSubmission = async (connection, data, videoPath, coverPath, d
       duration_seconds, youtube_URL,
       creator_gender, creator_email, creator_phone, creator_mobile,
       creator_firstname, creator_lastname, creator_country,
-      creator_address, referral_source, terms_of_use
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      creator_address, referral_source, terms_of_use,
+      youtube_status, youtube_error
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
-      coverPath,                      // Chemin cover
-      videoPath,                     // Chemin vidéo (sera mis à jour après déplacement)
+      coverPath,
+      videoPath,
       data.english_title,
       data.original_title || null,
       data.language,
@@ -22,9 +23,9 @@ export const createSubmission = async (connection, data, videoPath, coverPath, d
       data.classification,
       data.tech_stack,
       data.creative_method,
-      data.subtitles || null,        // Optionnel
-      durationSeconds,               // Durée calculée (peut être null)
-      null,                          // youtube_URL NULL (ajouté par admin)
+      data.subtitles || null,
+      durationSeconds,
+      null, // youtube_URL
       data.creator_gender,
       data.creator_email,
       data.creator_phone || null,
@@ -33,14 +34,15 @@ export const createSubmission = async (connection, data, videoPath, coverPath, d
       data.creator_lastname,
       data.creator_country,
       data.creator_address,
-      data.referral_source,  // Requis
-      data.terms_of_use
+      data.referral_source,
+      data.terms_of_use,
+      'pending',
+      null
     ]
   );
 
   return result.insertId;
 };
-
 
 export const updateFilePaths = async (connection, submissionId, videoUrl, cover, subtitles = null) => {
   await connection.execute(
@@ -107,7 +109,7 @@ export const getSubmissions = async (filters = {}) => {
       filters.status !== ''
     ) {
       joinClause = `
-        JOIN submission_moderation sm 
+        JOIN submission_moderation sm
         ON s.moderation_id = sm.id
       `;
 
@@ -120,7 +122,7 @@ export const getSubmissions = async (filters = {}) => {
       params.push(filters.type);
     }
 
-    
+
     if (filters.rated === 'rated') {
       conditions.push('EXISTS (SELECT 1 FROM selector_memo sel WHERE sel.submission_id = s.id)');
     } else if (filters.rated === 'unrated') {
@@ -273,4 +275,25 @@ export const updateYoutubeLinkInDatabase = async (youtubeUrl, id) => {
     console.error('Erreur updateYoutubeLinkInDatabase:', err);
     throw err;
   }
+};
+
+
+
+export const updateYoutubeStatus = async (id, status, error = null) => {
+  await db.pool.execute(
+    `UPDATE submissions
+     SET youtube_status = ?, youtube_error = ?
+     WHERE id = ?`,
+    [status, error, id]
+  );
+};
+
+
+export const getVideosToMonitor = async () => {
+  const [rows] = await db.pool.execute(
+    `SELECT id, youtube_url FROM submissions
+     WHERE youtube_status = 'uploaded'
+     AND (youtube_error IS NULL OR youtube_error = '')`
+  );
+  return rows;
 };

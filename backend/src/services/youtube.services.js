@@ -59,3 +59,20 @@ export const updateYoutubeVideo = async ({ videoId, title, description, tags = [
   });
   return response.data;
 };
+// services/youtube.services.js
+
+export const checkVideoStatus = async (videoId) => {
+  const response = await youtube.videos.list({
+    part: 'status,snippet',
+    id: videoId
+  });
+
+  const video = response.data.items[0];
+  if (!video) throw new Error("Vidéo non trouvée sur YouTube");
+
+  return {
+    uploadStatus: video.status.uploadStatus,
+    rejectionReason: video.status.rejectionReason,
+    privacyStatus: video.status.privacyStatus
+  };
+};
