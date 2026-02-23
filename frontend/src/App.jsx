@@ -17,6 +17,8 @@ import { LanguageProvider } from './context/LanguageContext';
 import SelectorDashboard from './pages/SelectorDashboard.jsx';
 import Dashboard from './pages/Dashboard';
 import Events from './pages/Events';
+import JuryIndex from './components/jury/JuryIndex.jsx';
+import JuryShow from './components/jury/JuryShow.jsx';
 
 function App() {
   const location = useLocation();
@@ -52,6 +54,8 @@ function App() {
             <Route path="/admin/newsletters/:id/edit" element={<AuthGuard><AdminNewsletterForm /></AuthGuard>} />
             <Route path="/admin/newsletters/:id/view" element={<AuthGuard><AdminNewsletterView /></AuthGuard>} />
             <Route path="/dashboard" element={<AuthGuard><Dashboard /></AuthGuard>} />
+            <Route path='/jury' element={<JuryIndex/>}/>
+            <Route path='/jury/:id' element={<JuryShow/>}/>
             <Route path="*" element={<div>404 - Page Not Found</div>} />
           </Routes>
         </div>

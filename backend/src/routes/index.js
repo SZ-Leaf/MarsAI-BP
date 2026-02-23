@@ -10,6 +10,7 @@ import selectorRoutes from './selector/selector.routes.js'
 import eventRoutes from './events/event.routes.js';
 import reservationRoutes from './events/reservations.routes.js';
 import { authenticate } from '../middlewares/auth.middleware.js';
+import juryRoutes from './jury/jury.routes.js';
 
 const router = Router();
 
@@ -24,6 +25,7 @@ router.use('/newsletter', newsletterRoutes);
 router.use('/selector', selectorRoutes);
 router.use('/events', eventRoutes);
 router.use('/events', reservationRoutes);
+router.use('/jury', juryRoutes);
 
 
 export default router;
