@@ -6,11 +6,13 @@ import path from "path";
 export const juryList = async(req, res) => {
     try {
         const jurys = await juryModel.getAllJuryMembers();
-        if (!jurys || jurys.length === 0) {
-      return sendError(res, 404, "La liste des membres du jury est vide", "The jury list is empty", null);
-    }
-        
-        return sendSuccess(res, 200, "Liste des membres du jury récupérée avec succès","List of jury members retrieved with success",jurys)
+        return sendSuccess(
+            res,
+            200,
+            "Liste des membres du jury récupérée avec succès",
+            "List of jury members retrieved with success",
+            jurys || []
+        );
     } catch (error) {
         console.error("Erreur juryList:", error);
         return sendError(res, 500, "Impossible de récupérer la liste du jury", null );

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import Modal from "../modals/Modal.jsx"
+import Modal from "../ui/Modal/Modal.jsx";
 import JuryForm from "../../components/jury/JuryForm.jsx";    // adapte
 import { juryService } from "../../services/jury.service";
 
