@@ -169,7 +169,7 @@
 .film-card .card-image-title { @apply text-white text-[32px] font-bold mb-2 tracking-tight; }
 .film-card .card-image-subtitle { @apply text-white/30 text-xs font-bold tracking-[3px]; }
 
-.stats-grid { @apply grid grid-cols-2 lg:grid-cols-4 gap-6 w-full mb-20; }
+.stats-grid-home { @apply grid grid-cols-2 lg:grid-cols-4 gap-6 w-full mb-20; }
 
 .stat-card {
   @apply bg-[#0c0c0c] border border-white/5 rounded-[32px] p-10 flex flex-col items-center justify-start text-center;

@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useAuth } from '../../../../hooks/useAuth';
 import { useLanguage } from '../../../../context/LanguageContext';
-import { Loader2, Info, Trash2, Loader, Plus, Send, ChevronUp, Mail, ArrowUp, ArrowDown, Search } from 'lucide-react';
+import { Loader2, Info, Trash2, Loader, Send, ChevronUp, Mail, ArrowUp, ArrowDown, Search, UserPlus } from 'lucide-react';
 import { getPendingInvitations, cancelInvitation, inviteUser } from '../../../../services/invitation.service';
+import { AdminSectionHeader } from '../shared';
 
 const ROLE_LABELS = {
-   1: { fr: 'Utilisateur', en: 'User' },
+   1: { fr: 'Selecteur', en: 'Selector' },
    2: { fr: 'Admin', en: 'Admin' },
    3: { fr: 'Super Admin', en: 'Super Admin' },
 };
@@ -69,8 +70,6 @@ const Invitations = () => {
       try {
          const response = await getPendingInvitations();
          setInvitations(response.data || []);
-         console.log('response', response.data);
-         console.log('logged user', user);
       } catch (err) {
          setError(err);
       } finally {
@@ -139,6 +138,10 @@ const Invitations = () => {
 
    return (
       <div className="space-y-4">
+         <AdminSectionHeader
+            title="Invitations" 
+            subtitle="Gérez les invitations envoyées aux utilisateurs."
+         />
          {/* Invite button */}
          <div className="flex justify-end">
             <button
@@ -146,7 +149,7 @@ const Invitations = () => {
                onClick={toggleForm}
                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-yellow-500 hover:bg-yellow-400 text-black font-bold text-sm transition-colors cursor-pointer border-none"
             >
-               {formOpen ? <ChevronUp size={16} /> : <Plus size={16} />}
+               {formOpen ?  <ChevronUp size={16} /> : <UserPlus size={16} />}
                {language === 'fr' ? 'Inviter' : 'Invite'}
             </button>
          </div>

@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef, useMemo } from "react";
-import { getSubmissionsService } from "../services/submission.service";
-import { useLanguage } from "../context/LanguageContext";
-import { useAlertHelper } from "../helpers/alertHelper";
-import { responseHelper } from "../helpers/responseHelper";
-import { SubmissionsList, VideoDetails } from "../components/features/submission";
+import { getSubmissionsService } from "../../../../services/submission.service";
+import { useLanguage } from "../../../../context/LanguageContext";
+import { useAlertHelper } from "../../../../helpers/alertHelper";
+import { responseHelper } from "../../../../helpers/responseHelper";
+import { SubmissionsList, VideoDetails } from "../../submission";
 import { AnimatePresence, motion } from "motion/react";
-import { usePlaylists } from "../helpers/playlistHelper";
-import { usePlaylistCounts } from "../hooks/usePlaylistCounts";
-import { PlaylistCard } from "../components/features/playlists";
+import { usePlaylists } from "../../../../helpers/playlistHelper";
+import { usePlaylistCounts } from "../../../../hooks/usePlaylistCounts";
+import { PlaylistCard } from "../../playlists";
 
 const Submissions = ({ onDetailToggle }) => {
    const [activeIndex, setActiveIndex] = useState(null);
@@ -95,7 +95,7 @@ const Submissions = ({ onDetailToggle }) => {
 
 
    return (
-      <section ref={submissionsRef} className="submissions-section pt-20">
+      <section ref={submissionsRef} className="submissions-section pt-4">
          
          <AnimatePresence mode="wait">
             {activeIndex !== null ? (

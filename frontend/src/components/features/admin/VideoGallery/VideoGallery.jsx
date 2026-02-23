@@ -1,6 +1,6 @@
 import React from 'react';
 import { AdminSectionHeader } from '../shared';
-import Submissions from '../../../../pages/Submissions';
+import { AdminSubmissions } from '../AdminSubmissions';
 import { useLanguage } from '../../../../context/LanguageContext';
 
 const VideoGallery = ({ onDetailToggle }) => {
@@ -15,7 +15,7 @@ const VideoGallery = ({ onDetailToggle }) => {
 
       
 
-      <Submissions onDetailToggle={onDetailToggle} />
+      <AdminSubmissions onDetailToggle={onDetailToggle} />
     </div>
   );
 };

@@ -8,6 +8,13 @@ export const getCurrentUserService = async () => {
    return res.data?.user ?? res.data ?? res;
 };
 
+export const getUsersService = async () => {
+   const res = await apiCall('/api/auth/users', {
+    method: 'GET'
+   });
+   return res;
+};
+
 export const loginService = async (email, password) => {
    email = email?.trim();
    password = password?.trim();
