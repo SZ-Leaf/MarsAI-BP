@@ -196,7 +196,7 @@ const Home = () => {
           <h2 className="section-title-xl">LE PROTOCOLE<br />TEMPOREL</h2>
         </div>
 
-        <div className="stats-grid">
+        <div className="stats-grid-home">
           {STATS.map((stat, index) => (
             <div key={index} className={`stat-card ${stat.borderClass}`}>
               <h3 className={`stat-value ${stat.color}`}>{stat.title}</h3>
