@@ -1,4 +1,4 @@
-import { inviteUser, registerUser, deleteUser, getUserCredentials, loginUser, updateUser, updateUserPassword, resetUserPassword, getUsers, changeUserRole, getWaitingInvites, getUserById } from "../../models/users/user.model.js";
+import { inviteUser, registerUser, deleteUser, getUserCredentials, loginUser, updateUser, updateUserPassword, resetUserPassword, getUsers, changeUserRole, getWaitingInvites, getUserById, getPendingInvites, getInviteById, deleteInvitation } from "../../models/users/user.model.js";
 import { hashPassword, verifyPassword } from "../../helpers/password/password_hasher.js";
 import { sendInviteMail, sendForgotPasswordMail } from "../../services/mailer/mailer.mail.js";
 import { signToken } from "../../services/jwt/jwt.token.js";
@@ -93,6 +93,78 @@ const inviteUserController = async (req, res) => {
          "Erreur lors de l'invitation",
          "Error inviting user",
          error.message
+      );
+   }
+}
+
+const getPendingInvitesController = async (req, res) => {
+   try {
+      const callerRoleId = req.user.role_id;
+      const maxRoleId = callerRoleId === 3 ? 2 : 1;
+      const result = await getPendingInvites(maxRoleId);
+      return sendSuccess(res, 200,
+         "Invitations en attente récupérées avec succès",
+         "Pending invites retrieved successfully",
+         result
+      );
+   } catch (error) {
+      console.error("Error getting pending invites:", error);
+      return sendError(res, 500,
+         "Erreur lors de la récupération des invitations en attente",
+         "Error getting pending invites",
+         error.message
+      );
+   }
+}
+
+const deleteInvitationController = async (req, res) => {
+   try {
+      const id = Number(req.params.id);
+      if (!id || !Number.isInteger(id) || id <= 0) {
+         return sendError(res, 400,
+            "Invitation invalide",
+            "Invalid invitation",
+            null
+         );
+      }
+
+      const invite = await getInviteById(id);
+      if (!invite || invite.registered) {
+         return sendError(res, 404,
+            "Invitation introuvable",
+            "Invitation not found",
+            null
+         );
+      }
+
+      const callerRoleId = req.user.role_id;
+      const maxRoleId = callerRoleId === 3 ? 2 : 1;
+      if (invite.role_id > maxRoleId) {
+         return sendError(res, 403,
+            "Vous n'avez pas la permission de supprimer cette invitation",
+            "You do not have permission to revoke this invitation",
+            null
+         );
+      }
+
+      const result = await deleteInvitation(id);
+      if (result.affectedRows === 0) {
+         return sendError(res, 400,
+            "Erreur lors de la suppression de l'invitation",
+            "Error deleting invitation",
+            null
+         );
+      }
+      return sendSuccess(res, 200,
+         "Invitation supprimée avec succès",
+         "Invitation deleted successfully",
+         null
+      );
+   } catch (error) {
+      console.error("Error deleting invitation:", error);
+      return sendError(res, 500,
+         "Erreur lors de la suppression de l'invitation",
+         "Error deleting invitation",
       );
    }
 }
@@ -302,10 +374,9 @@ const loginUserController = async (req, res) => {
       return sendSuccess(res, 200,
          "Utilisateur connecté avec succès",
          "User logged in successfully",
-         { user: { firstname: result.firstname, lastname: result.lastname, last_login: result.last_login, created_at: result.created_at } }
+         { firstname: result.firstname, lastname: result.lastname, last_login: result.last_login, created_at: result.created_at, role_id: result.role_id }
       );
    } catch (error) {
-      console.error("Error logging in user:", error);
       return sendError(res, 500,
          "Erreur lors de la connexion",
          "Error logging in user",
@@ -647,5 +718,7 @@ export {
    loginUserController,
    logoutUserController,
    getWaitingInvitesController,
-   getCurrentUserController
+   getCurrentUserController,
+   getPendingInvitesController,
+   deleteInvitationController
 };

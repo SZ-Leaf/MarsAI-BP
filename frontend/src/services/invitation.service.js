@@ -4,12 +4,12 @@ const getPendingInvitations = async () => {
    return apiCall('/api/auth/pending-invites', { method: 'GET' });
 };
 
-const cancelInvitation = async (email) => {
-   return apiCall(`/api/auth/pending-invites/${encodeURIComponent(email)}`, { method: 'DELETE' });
+const cancelInvitation = async (id) => {
+   return apiCall(`/api/auth/pending-invites/${id}`, { method: 'DELETE' });
 };
 
-const inviteUser = async (email, roleId) => {
-   return apiCall('/api/auth/invite', { method: 'POST', body: JSON.stringify({ email, roleId }) });
+const inviteUser = async (email, role_id) => {
+   return apiCall('/api/auth/invite', { method: 'POST', body: { email, role_id } });
 };
 
 export { getPendingInvitations, cancelInvitation, inviteUser };

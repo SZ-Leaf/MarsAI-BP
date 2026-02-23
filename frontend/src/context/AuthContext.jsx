@@ -25,8 +25,8 @@ export const AuthProvider = ({children}) => {
    useEffect(() => {
       const fetchCurrentUser = async () => {
          try {
-            const user = await getCurrentUserService();
-            setUser(user);
+            const response = await getCurrentUserService();
+            setUser(response.data?.user);
             setError(null);
          } catch (error) {
             if (error?.status === 401) {

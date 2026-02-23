@@ -41,7 +41,7 @@ const LoginForm = () => {
          }
          const response = await login(formData);
          alertHelper.showMessage(getMessageFromResponse(response));
-         navigate("/");
+         // navigate("/");
       } catch (error) {
          alertHelper.showMessage(getMessageFromResponse(error));
       } finally {
