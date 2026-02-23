@@ -124,8 +124,20 @@ export const deleteEventController = async (req, res) => {
 
 export const getEventsController = async (req, res) => {
   try {
-    const events = await getEvents();
-    return sendSuccess(res, 200, 'Événements récupérés', 'Events retrieved', { count: events.length, events });
+    const { title, start_date, end_date, timeframe } = req.query;
+
+    const events = await getEvents({
+      title,
+      start_date,
+      end_date,
+      timeframe
+    });
+
+    return sendSuccess(res, 200, 'Événements récupérés', 'Events retrieved', {
+      count: events.length,
+      events
+    });
+
   } catch (error) {
     return sendError(res, 500, 'Erreur récupération événements', 'Events retrieval error', error.message);
   }

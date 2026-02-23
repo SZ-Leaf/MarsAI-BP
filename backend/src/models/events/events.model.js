@@ -51,10 +51,37 @@ export const deleteEvent = async (eventId) => {
   );
 };
 
-export const getEvents = async () => {
-  const [rows] = await db.pool.execute(
-    'SELECT * FROM events ORDER BY id DESC'
-  );
+export const getEvents = async (filters = {}) => {
+  const { title, start_date, end_date, timeframe } = filters;
+
+  let query = 'SELECT * FROM events WHERE 1=1';
+  const params = [];
+
+  if (title) {
+    query += ' AND title LIKE ?';
+    params.push(`%${title}%`);
+  }
+
+  if (timeframe === 'upcoming') {
+    query += ' AND end_date >= NOW()';
+  } else if (timeframe === 'past') {
+    query += ' AND end_date < NOW()';
+  }
+
+  if (start_date) {
+    query += ' AND start_date >= ?';
+    params.push(start_date);
+  }
+
+  if (end_date) {
+    query += ' AND end_date <= ?';
+    params.push(end_date);
+  }
+
+  const sortOrder = timeframe === 'upcoming' ? 'ASC' : 'DESC';
+  query += ` ORDER BY start_date ${sortOrder}`;
+
+  const [rows] = await db.pool.execute(query, params);
   return rows;
 };
 
