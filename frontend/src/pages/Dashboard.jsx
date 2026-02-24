@@ -55,7 +55,7 @@ const Dashboard = () => {
         onViewChange={handleViewChange}
       />
 
-      <main className="main-content">
+      <main className="main-content main-content--dashboard">
         {!isDetailOpen && <Header />}
         <ActiveComponent onDetailToggle={setIsDetailOpen} />
       </main>
