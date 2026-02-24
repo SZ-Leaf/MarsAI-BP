@@ -80,8 +80,8 @@ const CountrySelect = ({ value, onChange, error, variant = 'light' }) => {
       </button>
 
       {isOpen && (
-        <div className={`absolute z-50 w-full mt-1 ${variant === 'dark' ? 'bg-transparent border-white/10' : 'bg-white border-gray-200'} border rounded shadow-lg max-h-60 overflow-y-auto`}>
-          <div className={`p-2 sticky top-0 ${variant === 'dark' ? 'bg-transparent border-white/10' : 'bg-white border-gray-200'} border-b`}>
+        <div className={`absolute z-50 w-full mt-1 ${variant === 'dark' ? 'bg-[#0c0c0c] border-white/10' : 'bg-white border-gray-200'} border rounded shadow-lg max-h-60 overflow-y-auto`}>
+          <div className={`p-2 sticky top-0 ${variant === 'dark' ? 'bg-[#0c0c0c] border-white/10' : 'bg-white border-gray-200'} border-b`}>
             <input
               type="text"
               placeholder="Rechercher un pays..."

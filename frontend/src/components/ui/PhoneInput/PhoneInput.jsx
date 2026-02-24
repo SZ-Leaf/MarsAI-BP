@@ -106,8 +106,8 @@ const PhoneInput = ({ value, onChange, error, placeholder, variant = 'light' }) 
         </button>
 
         {isDialCodeOpen && (
-          <div className={`absolute z-50 w-64 mt-1 ${variant === 'dark' ? 'bg-transparent border-white/10' : 'bg-white border-gray-200'} border rounded shadow-lg max-h-60 overflow-y-auto left-0`}>
-            <div className={`p-2 sticky top-0 ${variant === 'dark' ? 'bg-transparent border-white/10' : 'bg-white border-gray-200'} border-b`}>
+          <div className={`absolute z-50 w-64 mt-1 ${variant === 'dark' ? 'bg-[#0c0c0c] border-white/10' : 'bg-white border-gray-200'} border rounded shadow-lg max-h-60 overflow-y-auto left-0`}>
+            <div className={`p-2 sticky top-0 ${variant === 'dark' ? 'bg-[#0c0c0c] border-white/10' : 'bg-white border-gray-200'} border-b`}>
               <input
                 type="text"
                 placeholder="Rechercher..."
