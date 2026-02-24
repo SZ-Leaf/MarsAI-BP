@@ -4,6 +4,7 @@ import { Card } from '../components/ui';
 import useModal from '../hooks/useModal';
 import { SubmitModal } from '../components/features/submission';
 import '../styles/main.css';
+import Sponsors from '../components/sponsors/Sponsors';
 
 // --- Shared Internal Components ---
 
@@ -351,6 +352,7 @@ const Home = () => {
           </div>
         </div>
       </Section>
+      <Sponsors />
 
       <SubmitModal isOpen={isSubmitModalOpen} onClose={closeSubmitModal} />
     </div>
