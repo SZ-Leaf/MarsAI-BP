@@ -58,6 +58,7 @@ export const getEvents = async (filters = {}) => {
     SELECT e.*, COUNT(r.id) AS reservations
     FROM events e
     LEFT JOIN reservations r ON r.event_id = e.id
+
   `;
 
   const params = [];
@@ -91,10 +92,18 @@ export const getEvents = async (filters = {}) => {
   const [rows] = await db.pool.execute(query, params);
   return rows;
 };
+
 export const getEventById = async (eventId) => {
   const [rows] = await db.pool.execute(
-    'SELECT * FROM events WHERE id = ?',
+    `
+    SELECT e.*, COUNT(r.id) AS reservations
+    FROM events e
+    LEFT JOIN reservations r ON r.event_id = e.id
+    WHERE e.id = ?
+    GROUP BY e.id
+    `,
     [eventId]
   );
+
   return rows[0];
 };
