@@ -30,14 +30,18 @@ const CreatorStep = ({ formData, errors, updateField }) => {
         />
       </div>
 
-      <div>
-        <p className="text-sm text-gray-300 mb-2">Vérification anti-robot</p>
-        <Recaptcha
-          siteKey={siteKey}
-          onChange={(token) => updateField('recaptchaToken', token || '')}
-          onExpire={() => updateField('recaptchaToken', '')}
-          error={errors.recaptchaToken}
-        />
+      <div className="border-t pt-6 flex flex-col items-center gap-3">
+        <p className="text-sm text-gray-300 mb-1 text-center">
+          Vérification anti-robot
+        </p>
+        <div className="flex justify-center">
+          <Recaptcha
+            siteKey={siteKey}
+            onChange={(token) => updateField('recaptchaToken', token || '')}
+            onExpire={() => updateField('recaptchaToken', '')}
+            error={errors.recaptchaToken}
+          />
+        </div>
       </div>
     </div>
   );
