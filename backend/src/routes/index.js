@@ -9,6 +9,7 @@ import selectorRoutes from './selector/selector.routes.js'
 import eventRoutes from './events/event.routes.js';
 import reservationRoutes from './events/reservations.routes.js';
 import juryRoutes from './jury/jury.routes.js';
+import awardsRoutes from './awards/awards.routes.js';
 
 const router = Router();
 
@@ -22,6 +23,7 @@ router.use('/selector', selectorRoutes);
 router.use('/events', eventRoutes);
 router.use('/events', reservationRoutes);
 router.use('/jury', juryRoutes);
+router.use('/awards', awardsRoutes);
 
 
 export default router;

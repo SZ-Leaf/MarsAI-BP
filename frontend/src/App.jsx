@@ -14,6 +14,7 @@ import Events from './pages/Events';
 import JuryIndex from './components/jury/JuryIndex.jsx';
 import JuryShow from './components/jury/JuryShow.jsx';
 import Selection from './pages/Selection';
+import AwardsIndex from './components/awards/AwardsIndex.jsx';
 
 function App() {
   const location = useLocation();
@@ -42,6 +43,7 @@ function App() {
             <Route path="/dashboard" element={<AuthGuard><Dashboard /></AuthGuard>} />
             <Route path='/jury' element={<JuryIndex/>}/>
             <Route path='/jury/:id' element={<JuryShow/>}/>
+            <Route path='/awards' element={<AwardsIndex/>}/>
             <Route path="*" element={<div>404 - Page Not Found</div>} />
           </Routes>
         </div>
