@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { apiCall } from "../../utils/api.js";
+import { Link } from "react-router";
 
 
 export default function Sponsors() {
@@ -19,60 +20,57 @@ export default function Sponsors() {
 
   if (!sponsors.length) return null;
 
-  const half = Math.ceil(sponsors.length / 2);
-  const firstRow = sponsors.slice(0, half);
-  const secondRow = sponsors.slice(half);
+  // Duplique les sponsors pour remplir visuellement la barre,
+  // même quand il y en a très peu (ex : 2 sponsors seulement).
+  const MIN_ITEMS = 8;
+  let repeatedSponsors = sponsors;
+  while (repeatedSponsors.length < MIN_ITEMS) {
+    repeatedSponsors = repeatedSponsors.concat(sponsors);
+  }
 
   return (
-    /* gap-2 rapproche les deux bannières verticalement */
-    <div className="bg-gray-900 py-8 flex flex-col gap-2">
+    <section className="sponsors-section">
+      <div className="sponsors-inner">
+        <div className="sponsors-header">
+          <p className="sponsors-label">PARTENAIRES</p>
+          <h2 className="sponsors-title">ILS SOUTIENNENT <Link
+            to="/"
+            className="navbar-logo cursor-pointer"
+            aria-label="Retour à la page d'accueil"
+          >
+            MARS<span className="gradient-text">AI</span>
+          </Link></h2>
+          <p className="sponsors-subtitle">
+            Un réseau de partenaires engagés qui rendent possible le festival.
+          </p>
+        </div>
 
-      {/* BANNIÈRE HAUT */}
-      <div className="marquee-container">
-        {[1, 2].map((i) => (
-          <div key={`top-${i}`} className="marquee-content-left">
-            {firstRow.map((sponsor) => (
-              <a
-                key={`${i}-${sponsor.id}`}
-                href={sponsor.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mx-8 transition-transform duration-300 hover:scale-110 hover:z-10"
-              >
-                <img
-                  src={`http://localhost:3000${sponsor.cover}`}
-                  alt={sponsor.name}
-                  className="h-12 w-auto object-contain"
-                />
-              </a>
-            ))}
+        <div className="sponsors-marquees">
+          <div className="marquee-row marquee-row-primary">
+            <div className="marquee-container">
+              {[1, 2].map((i) => (
+                <div key={`row-${i}`} className="marquee-content-left">
+                  {repeatedSponsors.map((sponsor, index) => (
+                    <a
+                      key={`${i}-${sponsor.id}-${index}`}
+                      href={sponsor.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="sponsor-logo-link"
+                    >
+                      <img
+                        src={`http://localhost:3000${sponsor.cover}`}
+                        alt={sponsor.name}
+                        className="sponsor-logo"
+                      />
+                    </a>
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
-        ))}
+        </div>
       </div>
-
-      {/* BANNIÈRE BAS */}
-      <div className="marquee-container">
-        {[1, 2].map((i) => (
-          <div key={`bottom-${i}`} className="marquee-content-right">
-            {secondRow.map((sponsor) => (
-              <a
-                key={`${i}-${sponsor.id}`}
-                href={sponsor.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mx-8 transition-transform duration-300 hover:scale-110 hover:z-10"
-              >
-                <img
-                  src={`http://localhost:3000${sponsor.cover}`}
-                  alt={sponsor.name}
-                  className="h-12 w-auto object-contain"
-                />
-              </a>
-            ))}
-          </div>
-        ))}
-      </div>
-
-    </div>
+    </section>
   );
 }
