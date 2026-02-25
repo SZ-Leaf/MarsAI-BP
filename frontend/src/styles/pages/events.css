@@ -49,5 +49,5 @@
 }
 
 .page-events .event-card-button {
-  @apply mt-5 w-full py-3 bg-gradient-to-r from-blue-600 to-purple-500 hover:from-blue-500 hover:to-orange-500 text-white rounded-xl text-sm font-semibold transition-all;
+  @apply mt-5 w-full py-3 bg-orange-500 text-white rounded-xl text-sm font-semibold transition-all cursor-pointer hover:scale-105;
 }
