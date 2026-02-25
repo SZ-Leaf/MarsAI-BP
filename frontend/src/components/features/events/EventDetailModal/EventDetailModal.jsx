@@ -14,6 +14,7 @@ const EventDetailModal = ({ event, isOpen, onClose }) => {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
+  const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
   
   if (!event) return null;
 
@@ -207,7 +208,7 @@ const EventDetailModal = ({ event, isOpen, onClose }) => {
                   <div className="event-modal-description-header">
                     <Users size={16} className="event-modal-description-header-icon" />
                     <h3 className="event-modal-description-header-title">
-                      S&apos;inscrire à cet événement
+                      S'inscrire à cet événement
                     </h3>
                   </div>
 
@@ -217,14 +218,9 @@ const EventDetailModal = ({ event, isOpen, onClose }) => {
                       <span className="text-blue-400 font-medium">e‑mail de confirmation</span> avec un lien à valider.
                     </p>
 
-                    {message && (
-                      <p className="text-sm text-green-400 bg-green-500/10 border border-green-500/40 rounded-lg px-3 py-2">
-                        {message}
-                      </p>
-                    )}
-                    {error && (
-                      <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/40 rounded-lg px-3 py-2">
-                        {error}
+                    {remainingPlaces != null && (
+                      <p className="text-xs text-gray-400">
+                        {remainingPlaces} place{remainingPlaces > 1 ? 's' : ''} restante{remainingPlaces > 1 ? 's' : ''}
                       </p>
                     )}
 
@@ -237,65 +233,138 @@ const EventDetailModal = ({ event, isOpen, onClose }) => {
                     )}
 
                     {canRegister && (
-                      <form className="space-y-3" onSubmit={handleSubmit}>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          <div>
-                            <label className="block text-xs text-gray-400 mb-1">
-                              Prénom
-                            </label>
-                            <input
-                              type="text"
-                              name="first_name"
-                              required
-                              value={form.first_name}
-                              onChange={handleChange}
-                              className="w-full px-3 py-2 rounded-md bg-black/60 border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/80"
-                              placeholder="Ada"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-xs text-gray-400 mb-1">
-                              Nom
-                            </label>
-                            <input
-                              type="text"
-                              name="last_name"
-                              required
-                              value={form.last_name}
-                              onChange={handleChange}
-                              className="w-full px-3 py-2 rounded-md bg-black/60 border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/80"
-                              placeholder="Lovelace"
-                            />
-                          </div>
-                        </div>
-                        <div>
-                          <label className="block text-xs text-gray-400 mb-1">
-                            E-mail
-                          </label>
-                          <input
-                            type="email"
-                            name="email"
-                            required
-                            value={form.email}
-                            onChange={handleChange}
-                            className="w-full px-3 py-2 rounded-md bg-black/60 border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/80"
-                            placeholder="vous@example.com"
-                          />
-                        </div>
-                        <button
-                          type="submit"
-                          disabled={submitting}
-                          className="w-full mt-2 event-modal-footer-button disabled:opacity-70 disabled:cursor-not-allowed"
-                        >
-                          {submitting ? "Envoi en cours..." : "Recevoir mon lien de confirmation"}
-                        </button>
-                      </form>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMessage(null);
+                          setError(null);
+                          setIsRegistrationOpen(true);
+                        }}
+                        className="w-full mt-2 event-modal-footer-button disabled:opacity-70 disabled:cursor-not-allowed"
+                      >
+                        S'inscrire maintenant
+                      </button>
                     )}
                   </div>
                 </div>
               </div>
             </div>
           </motion.div>
+
+          {/* Modal d'inscription */}
+          <AnimatePresence>
+            {isRegistrationOpen && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70"
+                onClick={() => setIsRegistrationOpen(false)}
+              >
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                  transition={{ type: 'spring', stiffness: 260, damping: 24 }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="w-full max-w-md mx-4 rounded-2xl bg-gradient-to-b from-slate-900 to-black border border-white/10 p-6 space-y-4 shadow-2xl"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <h3 className="text-lg font-semibold text-white">
+                      S&apos;inscrire à cet événement
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => setIsRegistrationOpen(false)}
+                      className="text-gray-400 hover:text-white transition-colors"
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
+
+                  <p className="text-xs text-gray-400">
+                    Remplissez ce formulaire pour réserver votre place. Un{" "}
+                    <span className="text-blue-400 font-medium">e‑mail de confirmation</span> vous sera envoyé avec un lien à valider.
+                  </p>
+
+                  {message && (
+                    <p className="text-sm text-green-400 bg-green-500/10 border border-green-500/40 rounded-lg px-3 py-2">
+                      {message}
+                    </p>
+                  )}
+                  {error && (
+                    <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/40 rounded-lg px-3 py-2">
+                      {error}
+                    </p>
+                  )}
+
+                  {!canRegister && (
+                    <p className="text-sm text-amber-300 bg-amber-500/10 border border-amber-500/40 rounded-lg px-3 py-2">
+                      {isPast
+                        ? "Cet événement est terminé, les inscriptions sont closes."
+                        : "Cet événement est complet, aucune place n'est disponible pour le moment."}
+                    </p>
+                  )}
+
+                  {canRegister && (
+                    <form className="space-y-3" onSubmit={handleSubmit}>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs text-gray-400 mb-1">
+                            Prénom
+                          </label>
+                          <input
+                            type="text"
+                            name="first_name"
+                            required
+                            value={form.first_name}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 rounded-md bg-black/60 border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/80"
+                            placeholder="Ada"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-gray-400 mb-1">
+                            Nom
+                          </label>
+                          <input
+                            type="text"
+                            name="last_name"
+                            required
+                            value={form.last_name}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 rounded-md bg-black/60 border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/80"
+                            placeholder="Lovelace"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-400 mb-1">
+                          E-mail
+                        </label>
+                        <input
+                          type="email"
+                          name="email"
+                          required
+                          value={form.email}
+                          onChange={handleChange}
+                          className="w-full px-3 py-2 rounded-md bg-black/60 border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/80"
+                          placeholder="vous@example.com"
+                        />
+                      </div>
+                      <button
+                        type="submit"
+                        disabled={submitting}
+                        className="w-full mt-2 event-modal-footer-button disabled:opacity-70 disabled:cursor-not-allowed"
+                      >
+                        {submitting ? "Envoi en cours..." : "Recevoir mon lien de confirmation"}
+                      </button>
+                    </form>
+                  )}
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       )}
     </AnimatePresence>
