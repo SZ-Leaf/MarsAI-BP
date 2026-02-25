@@ -5,6 +5,7 @@ import { Routes, Route, useLocation } from 'react-router';
 import Register from './pages/Register';
 import Login from './pages/Login';
 import NewsletterConfirm from './pages/NewsletterConfirm';
+import ReservationConfirm from './pages/ReservationConfirm';
 import NewsletterUnsubscribe from './pages/NewsletterUnsubscribe';
 import { AuthGuard } from './components/features/admin/AdminLayout';
 import { AuthProvider } from './context/AuthContext';
@@ -40,6 +41,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/newsletter/confirm" element={<NewsletterConfirm />} />
             <Route path="/newsletter/unsubscribe" element={<NewsletterUnsubscribe />} />
+            <Route path="/reservation/confirm" element={<ReservationConfirm />} />
             <Route path="/dashboard" element={<AuthGuard><Dashboard /></AuthGuard>} />
             <Route path='/jury' element={<JuryIndex/>}/>
             <Route path='/jury/:id' element={<JuryShow/>}/>
