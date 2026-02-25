@@ -35,7 +35,7 @@ export default function Sponsors() {
           <p className="sponsors-label">PARTENAIRES</p>
           <h2 className="sponsors-title">ILS SOUTIENNENT <Link
             to="/"
-            className="navbar-logo cursor-pointer"
+            className="navbar-logo cursor-pointer "
             aria-label="Retour à la page d'accueil"
           >
             MARS<span className="gradient-text">AI</span>
