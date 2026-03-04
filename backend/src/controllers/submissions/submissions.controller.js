@@ -11,6 +11,7 @@ import { sendError, sendSuccess } from '../../helpers/response.helper.js';
 import { submissionSchema } from '../../utils/schemas/submission.schemas.js';
 import { verifyRecaptcha } from '../../utils/recaptcha.js';
 import { sendSubmissionConfirmation } from '../../services/mailer/mailer.mail.js';
+import { uploadFile, buildKey, isS3Configured } from '../../services/storage/s3.service.js';
 import db from '../../config/db_pool.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -237,85 +238,95 @@ export const submitController = async (req, res) => {
 
     await submissions_tagsModel.addTagsToSubmission(connection, submissionId, validatedData.tagIds);
 
-    // 
-    // create final folders directories for video, cover, subtitles and gallery
-    //
-
-    const finalDir = path.join(
-      getUploadsBasePath(),
-      'submissions',
-      submissionId.toString()
-    );
-
-    await fs.mkdir(path.join(finalDir, 'gallery'), { recursive: true });
-
-    //
-    // move files to final location
-    //
-
-    const finalVideoPath = path.join(finalDir, `video${videoExt}`);
     const finalCoverExt = path.extname(coverFile.originalname).toLowerCase();
-    const finalCoverPath = path.join(finalDir, `cover${finalCoverExt}`);
-
-    await fs.rename(videoFile.path, finalVideoPath);
-    await fs.rename(coverFile.path, finalCoverPath);
-
-    let finalSubtitlesPath = null;
-    let subtitlesExt = null;
-
-    if (subtitlesFile) {
-      subtitlesExt = path.extname(subtitlesFile.originalname).toLowerCase();
-      finalSubtitlesPath = path.join(finalDir, `subtitles${subtitlesExt}`);
-      await fs.rename(subtitlesFile.path, finalSubtitlesPath);
-    }
-
-    //
-    // build public URLs
-    //
-
-    const videoUrl = `/uploads/submissions/${submissionId}/video${videoExt}`;
-    const coverUrl = `/uploads/submissions/${submissionId}/cover${finalCoverExt}`;
-    const subtitlesUrl = finalSubtitlesPath
-      ? `/uploads/submissions/${submissionId}/subtitles${subtitlesExt}`
-      : null;
-
-    await updateFilePaths(
-      connection,
-      submissionId,
-      videoUrl,
-      coverUrl,
-      subtitlesUrl
-    );
-
-    //
-    // create gallery images
-    //
-
+    let videoUrl, coverUrl, subtitlesUrl;
     const galleryUrls = [];
 
-    for (let i = 0; i < galleryFiles.length; i++) {
-      const file = galleryFiles[i];
-      const ext = path.extname(file.originalname).toLowerCase();
-
-      const finalPath = path.join(
-        finalDir,
-        'gallery',
-        `image${i + 1}${ext}`
+    if (isS3Configured()) {
+      //
+      // S3 : upload des fichiers temporaires puis suppression via cleanupTempFiles
+      //
+      const videoBuffer = await fs.readFile(videoFile.path);
+      videoUrl = await uploadFile(
+        videoBuffer,
+        buildKey('submissions', submissionId, `video${videoExt}`),
+        videoFile.mimetype
       );
 
-      await fs.rename(file.path, finalPath);
-
-      galleryUrls.push(
-        `/uploads/submissions/${submissionId}/gallery/image${i + 1}${ext}`
+      const coverBuffer = await fs.readFile(coverFile.path);
+      coverUrl = await uploadFile(
+        coverBuffer,
+        buildKey('submissions', submissionId, `cover${finalCoverExt}`),
+        coverFile.mimetype
       );
-    }
 
-    if (galleryUrls.length) {
-      await galleryModel.createGalleryImages(
-        connection,
-        submissionId,
-        galleryUrls
+      if (subtitlesFile) {
+        const subtitlesExt = path.extname(subtitlesFile.originalname).toLowerCase();
+        const subtitlesBuffer = await fs.readFile(subtitlesFile.path);
+        subtitlesUrl = await uploadFile(
+          subtitlesBuffer,
+          buildKey('submissions', submissionId, `subtitles${subtitlesExt}`),
+          subtitlesFile.mimetype || 'application/x-subrip'
+        );
+      } else {
+        subtitlesUrl = null;
+      }
+
+      await updateFilePaths(connection, submissionId, videoUrl, coverUrl, subtitlesUrl);
+
+      for (let i = 0; i < galleryFiles.length; i++) {
+        const file = galleryFiles[i];
+        const ext = path.extname(file.originalname).toLowerCase();
+        const buffer = await fs.readFile(file.path);
+        const url = await uploadFile(
+          buffer,
+          buildKey('submissions', submissionId, `gallery/image${i + 1}${ext}`),
+          file.mimetype
+        );
+        galleryUrls.push(url);
+      }
+      if (galleryUrls.length) {
+        await galleryModel.createGalleryImages(connection, submissionId, galleryUrls);
+      }
+    } else {
+      //
+      // Local : dossiers + rename + chemins relatifs
+      //
+      const finalDir = path.join(
+        getUploadsBasePath(),
+        'submissions',
+        submissionId.toString()
       );
+      await fs.mkdir(path.join(finalDir, 'gallery'), { recursive: true });
+
+      await fs.rename(videoFile.path, path.join(finalDir, `video${videoExt}`));
+      await fs.rename(coverFile.path, path.join(finalDir, `cover${finalCoverExt}`));
+
+      if (subtitlesFile) {
+        const subtitlesExt = path.extname(subtitlesFile.originalname).toLowerCase();
+        await fs.rename(
+          subtitlesFile.path,
+          path.join(finalDir, `subtitles${subtitlesExt}`)
+        );
+        subtitlesUrl = `/uploads/submissions/${submissionId}/subtitles${subtitlesExt}`;
+      } else {
+        subtitlesUrl = null;
+      }
+
+      videoUrl = `/uploads/submissions/${submissionId}/video${videoExt}`;
+      coverUrl = `/uploads/submissions/${submissionId}/cover${finalCoverExt}`;
+      await updateFilePaths(connection, submissionId, videoUrl, coverUrl, subtitlesUrl);
+
+      for (let i = 0; i < galleryFiles.length; i++) {
+        const file = galleryFiles[i];
+        const ext = path.extname(file.originalname).toLowerCase();
+        const finalPath = path.join(finalDir, 'gallery', `image${i + 1}${ext}`);
+        await fs.rename(file.path, finalPath);
+        galleryUrls.push(`/uploads/submissions/${submissionId}/gallery/image${i + 1}${ext}`);
+      }
+      if (galleryUrls.length) {
+        await galleryModel.createGalleryImages(connection, submissionId, galleryUrls);
+      }
     }
 
     //

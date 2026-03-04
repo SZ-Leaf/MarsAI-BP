@@ -9,6 +9,7 @@ import {
 } from '../../models/sponsors/sponsors.model.js';
 import { sendError, sendSuccess } from '../../helpers/response.helper.js';
 import { sponsorSchema } from '../../utils/schemas/sponsor.schemas.js';
+import { uploadFile, buildKey, isS3Configured } from '../../services/storage/s3.service.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -39,21 +40,31 @@ export const createSponsorController = async (req, res) => {
       cover: `/uploads/sponsors/tmp/${coverFile.filename}`
     });
 
-    const sponsorDir = path.join(
-      getUploadsBasePath(),
-      'sponsors',
-      sponsorId.toString()
-    );
-
-    await fs.mkdir(sponsorDir, { recursive: true });
-
     const ext = path.extname(coverFile.originalname).toLowerCase();
-    const finalPath = path.join(sponsorDir, `cover${ext}`);
+    let finalUrl;
 
-    await fs.rename(coverFile.path, finalPath);
+    if (isS3Configured()) {
+      const buffer = await fs.readFile(coverFile.path);
+      finalUrl = await uploadFile(
+        buffer,
+        buildKey('sponsors', sponsorId, `cover${ext}`),
+        coverFile.mimetype
+      );
+      await updateSponsorCover(sponsorId, finalUrl);
+    } else {
+      const sponsorDir = path.join(
+        getUploadsBasePath(),
+        'sponsors',
+        sponsorId.toString()
+      );
+      await fs.mkdir(sponsorDir, { recursive: true });
+      const finalPath = path.join(sponsorDir, `cover${ext}`);
+      await fs.rename(coverFile.path, finalPath);
+      finalUrl = `/uploads/sponsors/${sponsorId}/cover${ext}`;
+      await updateSponsorCover(sponsorId, finalUrl);
+    }
 
-    const finalUrl = `/uploads/sponsors/${sponsorId}/cover${ext}`;
-    await updateSponsorCover(sponsorId, finalUrl);
+    await fs.unlink(coverFile.path).catch(() => {});
 
     return sendSuccess(
       res,
