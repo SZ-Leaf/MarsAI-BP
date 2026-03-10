@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
-import { Home, Trophy, Calendar, User, LayoutDashboard, Users } from 'lucide-react';
+import { Home, Trophy, Award, Calendar, User, LayoutDashboard, Users } from 'lucide-react';
 import { Link, useLocation } from 'react-router';
 import '../../../styles/main.css';
+import { useAuth } from '../../../hooks/useAuth';
 
 const Navbar = () => {
   const location = useLocation();
-  
+  const { user } = useAuth();
+
   const navItems = [
     { id: 'home', icon: Home, path: '/', label: 'Accueil' },
     { id: 'trophy', icon: Trophy, path: '/selection', label: 'Sélection' },
+    { id: 'awards', icon: Award, path: '/awards', label: 'Palmarès' },
     { id: 'calendar', icon: Calendar, path: '/events', label: 'Calendrier' },
     { id: 'jury', icon: Users, path: '/jury', label: 'Jury' },
-    { id: 'dashboard', icon: LayoutDashboard, path: '/dashboard', label: 'Admin' },
+    ...(user ? [{ id: 'dashboard', icon: LayoutDashboard, path: '/dashboard', label: 'Admin' }] : []),
   ];
 
   const getActiveItem = () => {

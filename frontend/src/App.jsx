@@ -5,16 +5,17 @@ import { Routes, Route, useLocation } from 'react-router';
 import Register from './pages/Register';
 import Login from './pages/Login';
 import NewsletterConfirm from './pages/NewsletterConfirm';
+import ReservationConfirm from './pages/ReservationConfirm';
 import NewsletterUnsubscribe from './pages/NewsletterUnsubscribe';
 import { AuthGuard } from './components/features/admin/AdminLayout';
 import { AuthProvider } from './context/AuthContext';
 import { LanguageProvider } from './context/LanguageContext';
 import Dashboard from './pages/Dashboard';
 import Events from './pages/Events';
-import JuryIndex from './components/jury/JuryIndex.jsx';
-import JuryShow from './components/jury/JuryShow.jsx';
 import Selection from './pages/Selection';
-import AwardsIndex from './components/awards/AwardsIndex.jsx';
+import JuryIndex from './components/features/admin/AdminConfig/AdminJury/jury/JuryIndex.jsx';
+import JuryShow from './components/features/admin/AdminConfig/AdminJury/jury/JuryShow.jsx';
+import Awards from './pages/Awards';
 
 function App() {
   const location = useLocation();
@@ -40,10 +41,11 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/newsletter/confirm" element={<NewsletterConfirm />} />
             <Route path="/newsletter/unsubscribe" element={<NewsletterUnsubscribe />} />
+            <Route path="/reservation/confirm" element={<ReservationConfirm />} />
             <Route path="/dashboard" element={<AuthGuard><Dashboard /></AuthGuard>} />
-            <Route path='/jury' element={<JuryIndex/>}/>
-            <Route path='/jury/:id' element={<JuryShow/>}/>
-            <Route path='/awards' element={<AwardsIndex/>}/>
+            <Route path='/jury' element={<JuryIndex />}/>
+            <Route path='/jury/:id' element={<JuryShow />}/>
+            <Route path='/awards' element={<Awards />}/>
             <Route path="*" element={<div>404 - Page Not Found</div>} />
           </Routes>
         </div>

@@ -40,4 +40,5 @@
 /* Pages - Styles spécifiques aux pages */
 @import "./pages/home.css";
 @import "./pages/auth.css";
+@import "./pages/events.css";
 @import "./pages/selection.css";
