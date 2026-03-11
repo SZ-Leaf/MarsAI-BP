@@ -48,6 +48,9 @@ const FormFieldModal = ({
             onChange={(e) => onChange(e.target.value)}
             className={baseClassName}
           >
+            <option value="" className="select-dark-option">
+              Sélectionner
+            </option>
             {options.map((option, index) => (
               <option key={index} value={option.value} className="select-dark-option">
                 {option.label}
