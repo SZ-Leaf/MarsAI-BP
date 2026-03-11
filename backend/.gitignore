@@ -10,5 +10,3 @@ uploads/*
 # Logs
 logs/
 *.log
-
-scripts_test_s3/
