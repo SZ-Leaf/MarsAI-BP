@@ -1,4 +1,3 @@
-export * from './submissionSchema.js';
 export * from './submission.schemas.js';
 export * from './user.schemas.js';
 export * from './newsletter.schemas.js';
