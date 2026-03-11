@@ -30,7 +30,18 @@ export const useModalForm = (
       ...prev,
       [field]: value
     }));
-    
+
+    // Validation Zod en temps réel uniquement pour les valeurs non vides.
+    // Les champs requis vides seront signalés au moment de la soumission globale.
+    if (value === '' || value === null || value === undefined) {
+      setLocalErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+      return;
+    }
+
     // Validation Zod en temps réel
     try {
       zodSchema.pick({ [field]: true }).parse({ [field]: value });
@@ -40,10 +51,11 @@ export const useModalForm = (
         return newErrors;
       });
     } catch (error) {
-      if (error.errors && error.errors.length > 0) {
+      const issues = error.issues || error.errors || [];
+      if (issues.length > 0) {
         setLocalErrors(prev => ({
           ...prev,
-          [field]: error.errors[0].message
+          [field]: issues[0].message
         }));
       }
     }
@@ -54,9 +66,10 @@ export const useModalForm = (
       zodSchema.parse(formData);
       return null;
     } catch (error) {
-      if (error.errors) {
+      const issues = error.issues || error.errors || [];
+      if (issues.length) {
         const finalErrors = {};
-        error.errors.forEach(err => {
+        issues.forEach(err => {
           const field = err.path[0];
           if (field) {
             finalErrors[field] = err.message;

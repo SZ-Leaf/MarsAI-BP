@@ -43,7 +43,7 @@ const collaboratorSchema = z.object({
 });
 
 const socialSchema = z.object({
-  network_id: z.number().min(1, "Le réseau social est requis"),
+  network_id: z.coerce.number().min(1, "Le réseau social est requis"),
   url: urlSchema.max(500, "Maximum 500 caractères")
 });
 
@@ -60,9 +60,7 @@ export const submissionSchema = z.object({
   language: z.string().min(1, "Requis"),
   english_synopsis: z.string().min(1, "Requis").max(300, "Maximum 300 caractères"),
   original_synopsis: z.string().max(300, "Maximum 300 caractères").optional().or(z.literal('')),
-  classification: z.enum(['Full AI', 'Semi-AI'], { 
-    errorMap: () => ({ message: "Requis" }) 
-  }),
+  classification: z.string().refine(val => val === 'Full AI' || val === 'Semi-AI', { message: "Requis" }),
   tech_stack: z.string().min(1, "Requis").max(500, "Maximum 500 caractères"),
   creative_method: z.string().min(1, "Requis").max(500, "Maximum 500 caractères"),
   
@@ -81,17 +79,17 @@ export const submissionSchema = z.object({
   creator_gender: z.string().min(1, "Requis"),
   creator_country: z.string().min(1, "Requis"),
   creator_address: z.string().min(1, "Requis"),
-  referral_source: z.enum([
-    'Friend',
-    'Social Media',
-    'Advertisement',
-    'Newsletter',
-    'Recommendation',
-    'Event',
-    'Other'
-  ], { 
-    errorMap: () => ({ message: "Requis" }) 
-  }),
+  referral_source: z.string().refine(
+    (val) =>
+      val === 'Friend' ||
+      val === 'Social Media' ||
+      val === 'Advertisement' ||
+      val === 'Newsletter' ||
+      val === 'Recommendation' ||
+      val === 'Event' ||
+      val === 'Other',
+    { message: "Requis" }
+  ),
   
   // Contributeurs et liens sociaux
   collaborators: z.array(collaboratorSchema).optional(),

@@ -41,13 +41,10 @@ const SocialModal = ({ isOpen, onClose, social, socialIndex, onSave, errors }) =
           error={localErrors.network_id}
           externalError={errors?.[`socials_${socialIndex}_network_id`]}
           required
-          options={[
-            { value: '', label: 'Sélectionner un réseau' },
-            ...socialNetworks.map(network => ({
-              value: network.id,
-              label: network.label
-            }))
-          ]}
+          options={socialNetworks.map(network => ({
+            value: network.id,
+            label: network.label
+          }))}
         />
 
         <FormFieldModal
