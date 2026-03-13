@@ -124,11 +124,11 @@ export async function countPendingSubmissions(user_id) {
   //si rows[0] existe retourne le nombre correspondant au total sinon retourne 0
   return rows[0]?.total ?? 0;
 }
-
+// récupèration des soumissions signalées avec le nombre de signalements et la date du dernier report
 export async function adminGetAllReportedSubmissions({ limit = 50, offset = 0 } = {}) {
-  const lim = Math.min(parseInt(limit, 10) || 50, 200);
+  const lim = Math.min(Math.max(parseInt(limit, 10) || 50, 1), 200);
   const off = Math.max(parseInt(offset, 10) || 0, 0);
-//agg =  aggregated data (alias pour la sous-requête)
+
   const [rows] = await db.pool.execute(
     `SELECT
         s.*,
@@ -145,12 +145,13 @@ export async function adminGetAllReportedSubmissions({ limit = 50, offset = 0 } 
         GROUP BY sm.submission_id
      ) agg ON agg.submission_id = s.id
      ORDER BY agg.last_reported_at DESC
-     LIMIT ${lim} OFFSET ${off}`
+     LIMIT ? OFFSET ?`,
+    [lim, off]
   );
 
   return rows;
 }
-//l'admin récupère toutes les soumissions qui sont dans la playlist report de chaque user
+// récupèration du détail des signalements pour une soumission donnée
 export async function adminGetReportsBySubmission(submission_id) {
   const submissionId = Number(submission_id);
 

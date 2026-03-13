@@ -77,7 +77,7 @@ function getList(req) {
   const key = (req.params.list || "").toLowerCase();
   return MAP[key] || null;
 }
-
+//récupération d'une playlist
 export const getPlaylist = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -98,7 +98,7 @@ const REVERSE_MAP = {
   WATCH_LATER: "watch_later",
   REPORT: "report",
 };
-
+//récupération du nombre de soumissions associées à une playlist
 export const getAllPlaylistsCount = async (req, res) => {
   try {
     const user_id = req.user.id;
@@ -121,7 +121,7 @@ export const getAllPlaylistsCount = async (req, res) => {
 
   }
 }
-
+//récupération des vidéos qui n'ont pas été traités par un selector(pas de rating, pas de comment , pas d'ajout à une playlist)
 export async function getPendingSubmissions(req, res) {
   try {
     const userId = req.user.id;
@@ -140,7 +140,7 @@ export async function getPendingSubmissions(req, res) {
     return sendError(res, 500, "Erreur lors de la récupération des vidéos à traiter", "Error while retrieving pending videos", null);
   }
 }
-
+//liste (destiné à l'admin) de vidéos signalées par l'ensemble des utilisateurs
 export const adminReportedList = async (req, res) => {
   try {
     const rows = await adminGetAllReportedSubmissions({

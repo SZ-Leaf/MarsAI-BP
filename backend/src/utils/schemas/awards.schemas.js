@@ -1,8 +1,6 @@
 import { z } from "zod";
 
-/**
- * CREATE – POST /awards
- */
+//post d'un award
 export const awardCreateSchema = z.object({
   title: z
     .string()
@@ -23,7 +21,7 @@ export const awardCreateSchema = z.object({
     .nullable()
     .optional(),
 
-  // uniquement si tu acceptes cover en string (sinon enlève ce champ)
+  // si on accepte  cover en string
   cover: z
     .string()
     .trim()
@@ -32,10 +30,7 @@ export const awardCreateSchema = z.object({
     .optional(),
 }).strict();
 
-/**
- * UPDATE – PUT /awards/:id
- * PUT = remplacement complet
- */
+//put d'un award
 export const awardUpdateSchema = z.object({
   title: z
     .string()
@@ -65,9 +60,7 @@ export const awardUpdateSchema = z.object({
 
 }).strict();
 
-/**
- * SET SUBMISSION – PUT /awards/:id/submission
- */
+//ajout d'une soumission à un award (put d'un award)
 export const awardSetSubmissionSchema = z.object({
   submission_id: z
     .coerce
