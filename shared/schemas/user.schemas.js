@@ -60,12 +60,16 @@ export const userPasswordSchema = z.object({
 
 export const updateUserSchema = z.object({
    firstname: z
-      .string({})
+      .string({
+         invalid_type_error: 'zod_errors.user.firstname.invalid',
+      })
       .min(2, { message: 'zod_errors.user.firstname.min' })
       .max(25, { message: 'zod_errors.user.firstname.max' })
       .optional(),
    lastname: z
-      .string()
+      .string({
+         invalid_type_error: 'zod_errors.user.lastname.invalid',
+      })
       .min(2, { message: 'zod_errors.user.lastname.min' })
       .max(25, { message: 'zod_errors.user.lastname.max' })
       .optional(),

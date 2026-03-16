@@ -5,25 +5,33 @@ import { z } from "zod";
  */
 export const awardCreateSchema = z.object({
   title: z
-    .string()
+    .string({
+      required_error: 'zod_errors.award.title.required',
+      invalid_type_error: 'zod_errors.award.title.invalid',
+    })
     .trim()
-    .min(1, "Titre requis")
-    .max(150, "Titre trop long"),
+    .min(1, { message: 'zod_errors.award.title.required' })
+    .max(150, { message: 'zod_errors.award.title.max' }),
 
   award_rank: z.coerce
-    .number()
-    .int("Rank invalide")
-    .min(0, "Rank invalide")
-    .max(9999, "Rank trop grand"),
-
-  description: z
-    .string()
-    .trim()
-    .max(4000, "Description trop longue")
+    .number({
+      invalid_type_error: 'zod_errors.award.award_rank.invalid',
+    })
+    .int({ message: 'zod_errors.award.award_rank.invalid' })
+    .min(0, { message: 'zod_errors.award.award_rank.invalid' })
+    .max(9999, { message: 'zod_errors.award.award_rank.max' })
     .nullable()
     .optional(),
 
-  // uniquement si tu acceptes cover en string (sinon enlève ce champ)
+  description: z
+    .string({
+      invalid_type_error: 'zod_errors.award.description.invalid',
+    })
+    .trim()
+    .max(4000, { message: 'zod_errors.award.description.max' })
+    .nullable()
+    .optional(),
+
   cover: z
     .string()
     .trim()
@@ -34,25 +42,33 @@ export const awardCreateSchema = z.object({
 
 /**
  * UPDATE – PUT /awards/:id
- * PUT = remplacement complet
  */
 export const awardUpdateSchema = z.object({
   title: z
-    .string()
+    .string({
+      required_error: 'zod_errors.award.title.required',
+      invalid_type_error: 'zod_errors.award.title.invalid',
+    })
     .trim()
-    .min(1, "Titre requis")
-    .max(150),
+    .min(1, { message: 'zod_errors.award.title.required' })
+    .max(150, { message: 'zod_errors.award.title.max' }),
 
   award_rank: z.coerce
-    .number()
-    .int()
-    .min(0)
-    .max(9999),
+    .number({
+      invalid_type_error: 'zod_errors.award.award_rank.invalid',
+    })
+    .int({ message: 'zod_errors.award.award_rank.invalid' })
+    .min(0, { message: 'zod_errors.award.award_rank.invalid' })
+    .max(9999, { message: 'zod_errors.award.award_rank.max' })
+    .nullable()
+    .optional(),
 
   description: z
-    .string()
+    .string({
+      invalid_type_error: 'zod_errors.award.description.invalid',
+    })
     .trim()
-    .max(4000)
+    .max(4000, { message: 'zod_errors.award.description.max' })
     .nullable()
     .optional(),
 

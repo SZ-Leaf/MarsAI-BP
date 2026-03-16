@@ -7,8 +7,9 @@ import collaboratorModel from '../../models/submissions/collaborators.model.js';
 import galleryModel from '../../models/submissions/gallery.model.js';
 import socialModel from '../../models/socials/socials.model.js';
 import submissions_tagsModel from '../../models/tags/submissions_tags.model.js';
-import { sendError, sendSuccess } from '../../helpers/response.helper.js';
+import { sendError, sendSuccess, sendZodError } from '../../helpers/response.helper.js';
 import { submissionSchema } from '@marsai/schemas';
+import { ZodError } from 'zod';
 import { verifyRecaptcha } from '../../utils/recaptcha.js';
 import { sendSubmissionConfirmation } from '../../services/mailer/mailer.mail.js';
 import db from '../../config/db_pool.js';
@@ -189,10 +190,22 @@ export const submitController = async (req, res) => {
 
   let validatedData;
   try {
-    validatedData = submissionSchema.parse(submissionData);
+    // Omit frontend-only fields AND file fields (video/cover/subtitles/gallery are
+    // multer uploads validated separately above — they are NOT in the JSON data body).
+    validatedData = submissionSchema
+      .omit({
+        age_confirmed: true,
+        recaptchaToken: true,
+        video: true,
+        cover: true,
+        subtitles: true,
+        gallery: true,
+      })
+      .parse(submissionData);
     console.log("BACK tagIds reçus :", validatedData.tagIds);
 
   } catch (err) {
+    if (err instanceof ZodError) return sendZodError(res, err);
     return sendError(res, 422, 'Données invalides', 'Invalid data', err.message);
   }
 
