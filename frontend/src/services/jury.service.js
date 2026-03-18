@@ -8,14 +8,14 @@ const BASE = "/api/jury";
 // Normalise la cover en URL publique utilisable par <img src="...">
 export const juryCoverUrl = (cover) => {
   if (!cover) return null;
-  const normalized = String(cover).replace(/^\/+/, ""); // enlève slash éventuel
-  return `/${normalized}`; // -> /uploads/...
+  const normalized = String(cover).replace(/^\/+/, ""); 
+  return `/${normalized}`; 
 };
 
 export const juryService = {
   // GET /api/jury
   list(params = {}) {
-    // params optionnels: search, limit, offset... si tu en ajoutes plus tard
+    
     return apiCall(BASE, { params });
   },
 
@@ -43,8 +43,7 @@ export const juryService = {
 
   // PUT /api/jury/:id 
   update(id, { firstname, lastname, job, coverFile } = {}) {
-    // si tu veux autoriser update sans cover => on peut envoyer JSON
-    // mais le plus simple: envoyer FormData dans tous les cas
+
     const fd = new FormData();
     if (coverFile) fd.append("cover", coverFile);
     fd.append("firstname", firstname ?? "");
